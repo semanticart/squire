@@ -15,6 +15,22 @@ type StoryError struct {
 	Msg  string
 }
 
+type wrappedCombinedStoryErrors struct {
+	err *CombinedStoryErrors
+}
+
+func (w *wrappedCombinedStoryErrors) Error() string {
+	return w.err.Error()
+}
+
+func (w *wrappedCombinedStoryErrors) Unwrap() error {
+	return w.err
+}
+
+func WrapCombinedStoryErrors(err *CombinedStoryErrors) error {
+	return &wrappedCombinedStoryErrors{err: err}
+}
+
 func (e *CombinedStoryErrors) Error() string {
 	var error error
 
@@ -93,10 +109,8 @@ func (e *CombinedStoryErrors) Finalize(story Story) error {
 	e.findChoicesForNonExistentChapters(story)
 	e.findUnreachableChapters(story)
 	e.addFrontMatterErrors(story)
-
-	if (len(e.Errors)) == 0 {
+	if len(e.Errors) == 0 {
 		return nil
 	}
-
-	return e
+	return WrapCombinedStoryErrors(e)
 }
