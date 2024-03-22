@@ -19,7 +19,13 @@ It was your grandmother. You die.
 Strangely, you don't die. Guess you better start getting ready for school.
 
 - [pick up backpack and head out](#backpack)
-- [decide to skip school](#skip)
+- [invalid](#this-page-does-not-exist)
+
+# Unreachable Chapter {#unreachable-path}
+
+This chapter is unreachable
+
+- [start over](#intro)
 
 # You decide to skip school {#skip}
 

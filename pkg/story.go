@@ -1,8 +1,6 @@
 package squire
 
 import (
-	"errors"
-	"fmt"
 	"regexp"
 	"strings"
 )
@@ -23,15 +21,15 @@ type Story struct {
 	Chapters       map[string]Chapter
 }
 
-func (s *Story) AddChapter(chapter Chapter, lineNumber int, combinedErrors *error) {
+func (s *Story) AddChapter(chapter Chapter, lineNumber int, combinedErrors *CombinedStoryErrors) {
 	chapter.Text = strings.TrimSpace(chapter.Text)
 
 	if len(chapter.Choices) == 0 {
 		if chapter.Text == "" {
-			*combinedErrors = errors.Join(*combinedErrors, fmt.Errorf("%d: Missing chapter text", lineNumber+1))
+			combinedErrors.Append(lineNumber+1, "Missing chapter text")
 		}
 
-		*combinedErrors = errors.Join(*combinedErrors, fmt.Errorf("%d: Dead end", lineNumber+1))
+		combinedErrors.Append(lineNumber+1, "Dead end")
 	}
 
 	s.Chapters[chapter.Id] = chapter
@@ -42,19 +40,21 @@ type Chapter struct {
 	Id      string
 	Text    string
 	Choices []Choice
+	Line    int
 }
 
 type Choice struct {
 	Text      string
 	ChapterId string
+	Line      int
 }
 
-func (c *Chapter) AddChoice(choice Choice, lineNumber int, combinedErrors *error) {
+func (c *Chapter) AddChoice(choice Choice, lineNumber int, combinedErrors *CombinedStoryErrors) {
 	if choice.Text == "" || choice.ChapterId == "" {
-		*combinedErrors = errors.Join(*combinedErrors, fmt.Errorf("%d: Invalid choice", lineNumber+1))
+		combinedErrors.Append(lineNumber+1, "Invalid choice")
 	} else {
 		if len(c.Choices) == 0 && strings.TrimSpace(c.Text) == "" {
-			*combinedErrors = errors.Join(*combinedErrors, fmt.Errorf("%d: Missing chapter text", lineNumber))
+			combinedErrors.Append(lineNumber, "Missing chapter text")
 		}
 		c.Choices = append(c.Choices, choice)
 	}
@@ -72,7 +72,7 @@ func isChoice(line string) bool {
 	return choiceStartRegex.MatchString(line)
 }
 
-func parseChoice(line string) Choice {
+func parseChoice(line string, lineNumber int) Choice {
 	matches := choiceRegex.FindStringSubmatch(line)
 
 	if len(matches) != 3 {
@@ -82,6 +82,7 @@ func parseChoice(line string) Choice {
 	return Choice{
 		Text:      matches[1],
 		ChapterId: matches[2],
+		Line:      lineNumber + 1,
 	}
 }
 
@@ -90,7 +91,7 @@ func ParseStory(contents string) (Story, error) {
 		Chapters: make(map[string]Chapter),
 	}
 
-	var combinedErrors error
+	var combinedErrors CombinedStoryErrors
 	var chapter Chapter
 
 	lines := strings.Split(contents, "\n")
@@ -117,21 +118,19 @@ func ParseStory(contents string) (Story, error) {
 
 			matches := chapterTitleRegex.FindStringSubmatch(line)
 
+			chapter = Chapter{Line: lineNumber + 1}
+
 			if len(matches) == 3 {
-				chapter = Chapter{
-					Title: matches[1],
-					Id:    matches[2],
-				}
+				chapter.Title = matches[1]
+				chapter.Id = matches[2]
 			} else {
-				chapter = Chapter{
-					Title: "INVALID",
-					Id:    "INVALID",
-				}
-				combinedErrors = errors.Join(combinedErrors, fmt.Errorf("%d: Invalid chapter title", lineNumber+1))
+				chapter.Title = "INVALID TITLE"
+				chapter.Id = "INVALID ID"
+				combinedErrors.Append(lineNumber+1, "Invalid chapter title")
 			}
 
 		case isChoice(line):
-			choice := parseChoice(line)
+			choice := parseChoice(line, lineNumber)
 			chapter.AddChoice(choice, lineNumber, &combinedErrors)
 
 		default:
@@ -141,13 +140,7 @@ func ParseStory(contents string) (Story, error) {
 
 	story.AddChapter(chapter, len(lines), &combinedErrors)
 
-	if story.Author == "" {
-		combinedErrors = errors.Join(fmt.Errorf("1: Missing author"), combinedErrors)
-	}
+	error := combinedErrors.Finalize(story)
 
-	if story.Title == "" {
-		combinedErrors = errors.Join(fmt.Errorf("1: Missing title"), combinedErrors)
-	}
-
-	return story, combinedErrors
+	return story, error
 }

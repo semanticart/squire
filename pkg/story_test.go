@@ -84,8 +84,16 @@ func TestParseStory(t *testing.T) {
 6: Invalid choice
 9: Invalid chapter title
 10: Missing chapter text
+11: Invalid chapter id for choice
+13: Unreachable chapter
 16: Dead end
-25: Missing chapter text
-25: Dead end`)
+17: Unreachable chapter
+22: Invalid chapter id for choice
+24: Unreachable chapter
+28: Invalid chapter id for choice
+30: Unreachable chapter
+31: Missing chapter text
+31: Dead end
+36: Invalid chapter id for choice`)
 	})
 }
