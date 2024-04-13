@@ -23,6 +23,7 @@ type Story struct {
 
 func (s *Story) AddChapter(chapter Chapter, lineNumber int, combinedErrors *CombinedStoryErrors) {
 	chapter.Text = strings.TrimSpace(chapter.Text)
+	chapter.OriginalOrder = len(s.Chapters)
 
 	if len(chapter.Choices) == 0 {
 		if chapter.Text == "" {
@@ -36,11 +37,12 @@ func (s *Story) AddChapter(chapter Chapter, lineNumber int, combinedErrors *Comb
 }
 
 type Chapter struct {
-	Title   string
-	Id      string
-	Text    string
-	Choices []Choice
-	Line    int
+	Title         string
+	Id            string
+	Text          string
+	Choices       []Choice
+	Line          int
+	OriginalOrder int
 }
 
 type Choice struct {
