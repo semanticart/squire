@@ -7,7 +7,8 @@ import (
 
 var (
 	// # Something isn't right here. {#intro}
-	chapterTitleRegex = regexp.MustCompile(`# (.+) {#(.+)}`)
+	// # Going to school {#backpack} !!
+	chapterTitleRegex = regexp.MustCompile(`# (.+) {#(.+)}(\s!{2})?`)
 	// - [jump in a nearby lion's mouth](#lion)
 	choiceRegex = regexp.MustCompile(`- \[(.+)\]\(#(.+)\)`)
 	// - [ or - (
@@ -30,19 +31,22 @@ func (s *Story) AddChapter(chapter Chapter, lineNumber int, combinedErrors *Comb
 			combinedErrors.Append(lineNumber+1, "Missing chapter text")
 		}
 
-		combinedErrors.Append(lineNumber+1, "Dead end")
+		if !chapter.IntentionalDeadEnd {
+			combinedErrors.Append(lineNumber+1, "Dead end")
+		}
 	}
 
 	s.Chapters[chapter.Id] = chapter
 }
 
 type Chapter struct {
-	Title         string
-	Id            string
-	Text          string
-	Choices       []Choice
-	Line          int
-	OriginalOrder int
+	Title              string
+	Id                 string
+	Text               string
+	Choices            []Choice
+	Line               int
+	OriginalOrder      int
+	IntentionalDeadEnd bool
 }
 
 type Choice struct {
@@ -122,9 +126,11 @@ func ParseStory(contents string) (Story, error) {
 
 			chapter = Chapter{Line: lineNumber + 1}
 
-			if len(matches) == 3 {
+			if len(matches) > 2 {
 				chapter.Title = matches[1]
 				chapter.Id = matches[2]
+
+				chapter.IntentionalDeadEnd = matches[3] == " !!"
 			} else {
 				chapter.Title = "INVALID TITLE"
 				chapter.Id = "INVALID ID"
