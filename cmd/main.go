@@ -14,18 +14,21 @@ import (
 func convert(story squire.Story, format string) {
 	fmt.Println("Converting to", format)
 
+	var err error
+
 	switch {
 	case format == "html":
-		// TODO: Implement HTML Conversion
-		fmt.Println("HTML conversion not implemented yet")
+		err = squire.ConvertToHtml(story, true)
+	case format == "html-inner":
+		err = squire.ConvertToHtml(story, false)
 	case format == "epub":
-		err := squire.ConvertToEpub(story)
-
-		if err != nil {
-			log.Fatalf("error converting to epub: %v", err)
-		}
+		err = squire.ConvertToEpub(story)
 	default:
-		fmt.Println("Invalid conversion format. Allowed options are 'html' or 'epub'")
+		fmt.Println("Invalid conversion format. Allowed options are 'html', 'html-inner', or 'epub'")
+	}
+
+	if err != nil {
+		log.Fatalf("error converting to %s: %v", format, err)
 	}
 }
 
@@ -34,7 +37,7 @@ func main() {
 		log.Fatalf("usage: %s <story.md>", os.Args[0])
 	}
 
-	convertFlag := flag.String("convert", "", "Conversion format (html or epub)")
+	convertFlag := flag.String("convert", "", "Conversion format (html, html-inner, or epub)")
 	flag.Parse()
 
 	fileName := os.Args[1]

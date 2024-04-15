@@ -4,20 +4,27 @@ import (
 	_ "embed"
 	"encoding/base64"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/go-shiori/go-epub"
 )
 
 //go:embed assets/default-epub-styles.css
-var cssFile []byte
+var epubCSS []byte
+
+//go:embed assets/default-html-interactivity.js
+var htmlJS []byte
+
+//go:embed assets/default-html-styles.css
+var htmlCSS []byte
 
 func cssContent() string {
-	return "data:text/plain;base64," + base64.StdEncoding.EncodeToString([]byte(cssFile))
+	return "data:text/plain;base64," + base64.StdEncoding.EncodeToString([]byte(epubCSS))
 }
 
-func header(text string) string {
-	return "<h1>" + text + "</h1>\n"
+func header(id string, text string) string {
+	return fmt.Sprintf("<h1 id=\"%s\">%s</h1>\n", id, text)
 }
 
 func paragraph(text string) string {
@@ -36,6 +43,56 @@ func choiceListEnd() string {
 	return "</ul>\n"
 }
 
+func sortedChapters(chapters map[string]Chapter) []Chapter {
+	sorted := make([]Chapter, 0, len(chapters))
+
+	for c := range len(chapters) {
+		for _, chapter := range chapters {
+			if chapter.OriginalOrder == c {
+				sorted = append(sorted, chapter)
+			}
+		}
+	}
+	return sorted
+}
+
+func ConvertToHtml(story Story, full bool) error {
+	html := ""
+
+	if full {
+		html += "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"utf-8\">\n<title>" + story.Title + "</title>\n</head>\n<body>\n"
+	}
+
+	html += "<div id='story'>\n"
+	html += "<style>" + string(htmlCSS) + "</style>\n"
+
+	for _, chapter := range sortedChapters(story.Chapters) {
+		html += header(chapter.Id, chapter.Title)
+
+		for _, line := range strings.Split(chapter.Text, "\n") {
+			html += paragraph(line)
+		}
+
+		html += choiceListStart()
+
+		for _, choice := range chapter.Choices {
+			html += choiceItem(choice.Text, choice.ChapterId, "#", "")
+		}
+
+		html += choiceListEnd()
+	}
+
+	html += "<script>\n" + string(htmlJS) + "</script>\n"
+
+	html += "</div>"
+
+	if full {
+		html += "</body>\n</html>"
+	}
+
+	return os.WriteFile(story.Title+".html", []byte(html), 0644)
+}
+
 func ConvertToEpub(story Story) error {
 	book, err := epub.NewEpub(story.Title)
 
@@ -51,29 +108,25 @@ func ConvertToEpub(story Story) error {
 		return err
 	}
 
-	for c := range len(story.Chapters) {
-		for _, chapter := range story.Chapters {
-			if chapter.OriginalOrder == c {
-				content := header(chapter.Title)
+	for _, chapter := range sortedChapters(story.Chapters) {
+		content := header(chapter.Id, chapter.Title)
 
-				for _, line := range strings.Split(chapter.Text, "\n") {
-					content += paragraph(line)
-				}
+		for _, line := range strings.Split(chapter.Text, "\n") {
+			content += paragraph(line)
+		}
 
-				content += choiceListStart()
+		content += choiceListStart()
 
-				for _, choice := range chapter.Choices {
-					content += choiceItem(choice.Text, choice.ChapterId, "", ".xhtml")
-				}
+		for _, choice := range chapter.Choices {
+			content += choiceItem(choice.Text, choice.ChapterId, "", ".xhtml")
+		}
 
-				content += choiceListEnd()
+		content += choiceListEnd()
 
-				_, err = book.AddSection(content, chapter.Title, chapter.Id, cssPath)
+		_, err = book.AddSection(content, chapter.Title, chapter.Id, cssPath)
 
-				if err != nil {
-					return err
-				}
-			}
+		if err != nil {
+			return err
 		}
 	}
 

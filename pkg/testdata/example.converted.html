@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>You're probably going to die.</title>
+</head>
+<body>
+<div id='story'>
+<style>#story > * {
+  display: none;
+}
+
+#story .active {
+  display: block;
+}
+</style>
+<h1 id="intro">Something isn't right here.</h1>
+<p>You hear a phone ringing.</p>
+<ul class="choices">
+<li><a href="#phone">pick up phone</a></li>
+<li><a href="#ignore-phone">do not answer</a></li>
+<li><a href="#lion">jump in a nearby lion's mouth</a></li>
+</ul>
+<h1 id="phone">You pick up the phone...</h1>
+<p>It is your grandmother. You die.</p>
+<ul class="choices">
+<li><a href="#intro">start over</a></li>
+</ul>
+<h1 id="ignore-phone">You ignore the phone...</h1>
+<p>It was your grandmother. You die.</p>
+<ul class="choices">
+<li><a href="#intro">start over</a></li>
+</ul>
+<h1 id="lion">You jump in a nearby lion's mouth...</h1>
+<p>Strangely, you don't die. Guess you better start getting ready for school.</p>
+<ul class="choices">
+<li><a href="#backpack">pick up backpack and head out</a></li>
+<li><a href="#skip">decide to skip school</a></li>
+</ul>
+<h1 id="skip">You decide to skip school</h1>
+<p>A wild herd of dinosaurs bust in and kill you. Guess you'll never get to tell your friends about how you're immune to lions... or that you met live dinosaurs :(</p>
+<ul class="choices">
+<li><a href="#intro">start over</a></li>
+</ul>
+<h1 id="backpack">Going to school</h1>
+<p>You're on your way to school when a meteor lands on you, killing you instantly.</p>
+<ul class="choices">
+<li><a href="#intro">start over</a></li>
+</ul>
+<script>
+(function () {
+  var SQUIRE = {
+    clear: function () {
+      var activeEls = document.getElementsByClassName("active");
+      while (activeEls.length) {
+        activeEls[0].classList.remove("active");
+      }
+      setTimeout(function () {
+        window.scrollTo(0, 0);
+      });
+    },
+
+    showSection: function (el) {
+      el.classList.add("active");
+
+      while (el.nextElementSibling && el.nextElementSibling.tagName !== "H1") {
+        el.nextElementSibling.classList.add("active");
+        el = el.nextElementSibling;
+      }
+    },
+
+    visit: function () {
+      var id = window.location.hash.split("#")[1] || "intro";
+      var el = document.getElementById(id);
+      this.clear();
+      this.showSection(el);
+    },
+  };
+
+  SQUIRE.visit();
+
+  window.addEventListener("hashchange", SQUIRE.visit.bind(SQUIRE));
+})();
+</script>
+</div></body>
+</html>
