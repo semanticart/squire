@@ -1,10 +1,10 @@
 package squire
 
 import (
+	"bytes"
 	_ "embed"
 	"encoding/base64"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/go-shiori/go-epub"
@@ -56,7 +56,7 @@ func sortedChapters(chapters map[string]Chapter) []Chapter {
 	return sorted
 }
 
-func ConvertToHtml(story Story, full bool) error {
+func ConvertToHtml(story Story, full bool) (bytes.Buffer, error) {
 	html := ""
 
 	if full {
@@ -90,14 +90,18 @@ func ConvertToHtml(story Story, full bool) error {
 		html += "</body>\n</html>"
 	}
 
-	return os.WriteFile(story.Title+".html", []byte(html), 0644)
+	buffer := bytes.NewBufferString(html)
+
+	return *buffer, nil
 }
 
-func ConvertToEpub(story Story) error {
+func ConvertToEpub(story Story) (bytes.Buffer, error) {
+	var buffer bytes.Buffer
+
 	book, err := epub.NewEpub(story.Title)
 
 	if err != nil {
-		return err
+		return buffer, err
 	}
 
 	book.SetAuthor(story.Author)
@@ -105,7 +109,7 @@ func ConvertToEpub(story Story) error {
 	cssPath, err := book.AddCSS(cssContent(), "")
 
 	if err != nil {
-		return err
+		return buffer, err
 	}
 
 	for _, chapter := range sortedChapters(story.Chapters) {
@@ -126,9 +130,15 @@ func ConvertToEpub(story Story) error {
 		_, err = book.AddSection(content, chapter.Title, chapter.Id, cssPath)
 
 		if err != nil {
-			return err
+			return buffer, err
 		}
 	}
 
-	return book.Write(story.Title + ".epub")
+	_, err = book.WriteTo(&buffer)
+
+	if err != nil {
+		return buffer, err
+	}
+
+	return buffer, nil
 }

@@ -24,13 +24,7 @@ func TestConvertStory(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		err = ConvertToHtml(story, true)
-
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		output, err := os.ReadFile(story.Title + ".html")
+		buf, err := ConvertToHtml(story, true)
 
 		if err != nil {
 			t.Fatal(err)
@@ -42,7 +36,7 @@ func TestConvertStory(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		assertEqual(t, strings.TrimSpace(string(output)), strings.TrimSpace(string(expected)))
+		assertEqual(t, strings.TrimSpace(buf.String()), strings.TrimSpace(string(expected)))
 	})
 
 	t.Run("Converting a story to inner-html", func(t *testing.T) {
@@ -58,13 +52,7 @@ func TestConvertStory(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		err = ConvertToHtml(story, false)
-
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		output, err := os.ReadFile(story.Title + ".html")
+		buf, err := ConvertToHtml(story, false)
 
 		if err != nil {
 			t.Fatal(err)
@@ -76,6 +64,6 @@ func TestConvertStory(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		assertEqual(t, strings.TrimSpace(string(output)), strings.TrimSpace(string(expected)))
+		assertEqual(t, strings.TrimSpace(buf.String()), strings.TrimSpace(string(expected)))
 	})
 }

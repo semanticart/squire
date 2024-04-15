@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"os"
@@ -14,20 +15,28 @@ import (
 func convert(story squire.Story, format string) {
 	fmt.Println("Converting to", format)
 
+	// TODO: make this configurable
+	const fileNameBase = "output"
+
 	var err error
+	var buf bytes.Buffer
+	var extension = "html"
 
 	switch {
 	case format == "html":
-		err = squire.ConvertToHtml(story, true)
+		buf, err = squire.ConvertToHtml(story, true)
 	case format == "html-inner":
-		err = squire.ConvertToHtml(story, false)
+		buf, err = squire.ConvertToHtml(story, false)
 	case format == "epub":
-		err = squire.ConvertToEpub(story)
+		extension = "epub"
+		buf, err = squire.ConvertToEpub(story)
 	default:
 		fmt.Println("Invalid conversion format. Allowed options are 'html', 'html-inner', or 'epub'")
 	}
 
-	if err != nil {
+	if err == nil {
+		os.WriteFile(fileNameBase+"."+extension, buf.Bytes(), 0644)
+	} else {
 		log.Fatalf("error converting to %s: %v", format, err)
 	}
 }
