@@ -34,8 +34,8 @@ A wild herd of dinosaurs bust in and kill you. Guess you'll never get to tell yo
 
 - [start over](#intro)
 
-# Going to school {#backpack}
+# Going to school {#backpack} !!
 
-You're on your way to school when a meteor lands on you, killing you instantly.
+You're on your way to school when a meteor lands on you. You gain super powers and institute world peace.
 
-- [start over](#intro)
+You win.

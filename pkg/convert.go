@@ -73,13 +73,15 @@ func ConvertToHtml(story Story, full bool) (bytes.Buffer, error) {
 			html += paragraph(line)
 		}
 
-		html += choiceListStart()
+		if len(chapter.Choices) > 0 {
+			html += choiceListStart()
 
-		for _, choice := range chapter.Choices {
-			html += choiceItem(choice.Text, choice.ChapterId, "#", "")
+			for _, choice := range chapter.Choices {
+				html += choiceItem(choice.Text, choice.ChapterId, "#", "")
+			}
+
+			html += choiceListEnd()
 		}
-
-		html += choiceListEnd()
 	}
 
 	html += "<script>\n" + string(htmlJS) + "</script>\n"
@@ -119,13 +121,15 @@ func ConvertToEpub(story Story) (bytes.Buffer, error) {
 			content += paragraph(line)
 		}
 
-		content += choiceListStart()
+		if len(chapter.Choices) > 0 {
+			content += choiceListStart()
 
-		for _, choice := range chapter.Choices {
-			content += choiceItem(choice.Text, choice.ChapterId, "", ".xhtml")
+			for _, choice := range chapter.Choices {
+				content += choiceItem(choice.Text, choice.ChapterId, "", ".xhtml")
+			}
+
+			content += choiceListEnd()
 		}
-
-		content += choiceListEnd()
 
 		_, err = book.AddSection(content, chapter.Title, chapter.Id, cssPath)
 

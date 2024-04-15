@@ -55,13 +55,11 @@ func TestParseStory(t *testing.T) {
 		backpack := story.Chapters["backpack"]
 		assertEqual(t, backpack.Title, "Going to school")
 		assertEqual(t, backpack.Id, "backpack")
-		assertEqual(t, backpack.Text, "You're on your way to school when a meteor lands on you, killing you instantly.")
+		assertEqual(t, backpack.Text, "You're on your way to school when a meteor lands on you. You gain super powers and institute world peace.\n\nYou win.")
 
-		if len(backpack.Choices) != 1 {
-			t.Fatalf("got %d choices, want 1", len(backpack.Choices))
+		if len(backpack.Choices) != 0 {
+			t.Fatalf("got %d choices, want 0", len(backpack.Choices))
 		}
-
-		assertChoice(t, backpack.Choices[0], "start over", "intro")
 	})
 
 	t.Run("Parsing an invalid story", func(t *testing.T) {

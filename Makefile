@@ -12,7 +12,7 @@ vet:
 	go vet ./...
 
 build: test fmt vet
-	go build -o bin/squire cmd/main.go
+	go build -o bin/squire cmd/squire/main.go
 
 get:
 	go get ./...
