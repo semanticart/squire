@@ -2,27 +2,34 @@ package converter
 
 import (
 	epub "github.com/go-shiori/go-epub"
+
+	"github.com/semanticart/squire/pkg/parser"
 )
 
-func ConvertToEPUB() {
-	book, err := epub.NewEpub("My Title")
+func ConvertToEPUB(story parser.Story) error {
+	book, err := epub.NewEpub(story.Title)
 
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	book.SetAuthor("Jeffrey Chupp")
+	book.SetAuthor(story.Author)
 
-	book.AddSection(`
+	for _, chapter := range story.Chapters {
+		body := "<h1>" + chapter.Title + "</h1>"
 
-	<p>Hello, <b>world</b></p>
+		body += chapter.Body
 
-	<a href="second-section.xhtml">Some choice goes here</a>
-	`, "First Section", "first-section", "")
-	book.AddSection(`<p>Another text</p>
+		for _, choice := range chapter.Choices {
+			body += "<p><a href=\"" + choice.ChapterID + ".xhtml\">" + choice.Text + "</a></p>"
+		}
 
-	<a href="first-section.xhtml">Start over</a>
-	`, "Second Section", "second-section", "")
+		_, err = book.AddSection(body, chapter.Title, chapter.ID, "")
 
-	book.Write("output.epub")
+		if err != nil {
+			return err
+		}
+	}
+
+	return book.Write("output.epub")
 }
