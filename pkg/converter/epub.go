@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 
 	epub "github.com/go-shiori/go-epub"
+	img64 "github.com/tenkoh/goldmark-img64"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/renderer/html"
@@ -21,11 +22,14 @@ func cssContent() string {
 	return "data:text/plain;base64," + base64.StdEncoding.EncodeToString(epubCSS)
 }
 
-func newMarkdownConverter() goldmark.Markdown {
+func newMarkdownConverter(rootDir string) goldmark.Markdown {
 	return goldmark.New(
-		goldmark.WithExtensions(extension.GFM),
+		goldmark.WithExtensions(extension.GFM,
+			img64.Img64,
+		),
 		goldmark.WithRendererOptions(
 			html.WithXHTML(),
+			img64.WithParentPath(rootDir),
 		),
 	)
 }
@@ -42,8 +46,8 @@ func markdownToHTML(md goldmark.Markdown, markdown string) (string, error) {
 	return buf.String(), nil
 }
 
-func ConvertToEPUB(story parser.Story) error {
-	md := newMarkdownConverter()
+func ConvertToEPUB(rootDir string, story parser.Story) error {
+	md := newMarkdownConverter(rootDir)
 	book, err := epub.NewEpub(story.Title)
 
 	if err != nil {
