@@ -34,5 +34,10 @@ func main() {
 
 	fmt.Println(story.Title + " is valid")
 
-	converter.ConvertToEPUB()
+	err = converter.ConvertToEPUB(story)
+
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }
