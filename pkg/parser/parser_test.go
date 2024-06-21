@@ -4,8 +4,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/semanticart/squire/pkg/parser"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/semanticart/squire/pkg/parser"
 )
 
 func assertChoice(t *testing.T, choice parser.Choice, text, chapterID string) {
@@ -37,7 +38,7 @@ func TestParse(t *testing.T) {
 		chapter1 := story.Chapters[0]
 		assert.Equal(t, "Something isn't right here.", chapter1.Title)
 		assert.Equal(t, "intro", chapter1.ID)
-		assert.Equal(t, "You hear a phone ringing. _Something_ makes you suspicious of it.", chapter1.Body)
+		assert.Equal(t, "![a ringing phone](./phone.jpg)\n\nYou hear a phone ringing. _Something_ makes you suspicious of it.", chapter1.Body)
 
 		if len(chapter1.Choices) != 3 {
 			t.Fatalf("expected 3 choices, got %d", len(chapter1.Choices))
@@ -50,7 +51,7 @@ func TestParse(t *testing.T) {
 		lastChapter := story.Chapters[5]
 		assert.Equal(t, "Going to school", lastChapter.Title)
 		assert.Equal(t, "backpack", lastChapter.ID)
-		assert.Equal(t, "You're on your way to school when a meteor lands on you. You gain super powers and institute world peace.\n\nYou win.", lastChapter.Body)
+		assert.Equal(t, "![meteor](./meteor.png)\n\nYou're on your way to school when a meteor lands on you. You gain super powers and institute world peace.\n\nYou win.", lastChapter.Body)
 
 		if len(lastChapter.Choices) != 0 {
 			t.Fatalf("expected 0 choices, got %d", len(lastChapter.Choices))

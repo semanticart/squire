@@ -3,6 +3,8 @@
 
 # Something isn't right here. {#intro}
 
+![a ringing phone](./phone.jpg)
+
 You hear a phone ringing. _Something_ makes you suspicious of it.
 
 - [pick up phone](#phone)
@@ -35,6 +37,8 @@ A wild herd of dinosaurs bust in and kill you. Guess you'll never get to tell yo
 - [start over](#intro)
 
 # Going to school {#backpack} !!
+
+![meteor](./meteor.png)
 
 You're on your way to school when a meteor lands on you. You gain super powers and institute world peace.
 

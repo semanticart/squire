@@ -4,6 +4,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/semanticart/squire/pkg/converter"
 	"github.com/semanticart/squire/pkg/parser"
@@ -34,7 +35,9 @@ func main() {
 
 	fmt.Println(story.Title + " is valid")
 
-	err = converter.ConvertToEPUB(story)
+	rootDir := filepath.Dir(filename)
+
+	err = converter.ConvertToEPUB(rootDir, story)
 
 	if err != nil {
 		fmt.Println(err)

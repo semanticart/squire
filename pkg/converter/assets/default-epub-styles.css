@@ -7,3 +7,8 @@ ul.choices li {
   padding: 10px 5px;
 }
 
+img {
+  margin: 0 auto;
+  display: block;
+}
+
