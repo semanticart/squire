@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/semanticart/squire/pkg/converter"
 	"github.com/semanticart/squire/pkg/parser"
 )
 
@@ -32,4 +33,6 @@ func main() {
 	}
 
 	fmt.Println(story.Title + " is valid")
+
+	converter.ConvertToEPUB()
 }
