@@ -4,6 +4,7 @@ go 1.22.4
 
 require (
 	github.com/go-shiori/go-epub v1.2.1
+	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.9.0
 	github.com/tenkoh/goldmark-img64 v0.1.1
 	github.com/yuin/goldmark v1.7.2
