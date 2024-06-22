@@ -5,10 +5,6 @@ import (
 	"encoding/base64"
 
 	epub "github.com/go-shiori/go-epub"
-	img64 "github.com/tenkoh/goldmark-img64"
-	"github.com/yuin/goldmark"
-	"github.com/yuin/goldmark/extension"
-	"github.com/yuin/goldmark/renderer/html"
 
 	"github.com/semanticart/squire/pkg/parser"
 
@@ -22,36 +18,12 @@ func cssContent() string {
 	return "data:text/plain;base64," + base64.StdEncoding.EncodeToString(epubCSS)
 }
 
-func newMarkdownConverter(rootDir string) goldmark.Markdown {
-	return goldmark.New(
-		goldmark.WithExtensions(extension.GFM,
-			img64.Img64,
-		),
-		goldmark.WithRendererOptions(
-			html.WithXHTML(),
-			img64.WithParentPath(rootDir),
-		),
-	)
-}
-
-func markdownToHTML(md goldmark.Markdown, markdown string) (string, error) {
-	var buf bytes.Buffer
-
-	err := md.Convert([]byte(markdown), &buf)
-
-	if err != nil {
-		return "", err
-	}
-
-	return buf.String(), nil
-}
-
-func ConvertToEPUB(rootDir string, story parser.Story) error {
+func ConvertToEPUB(rootDir string, story parser.Story) ([]byte, error) {
 	md := newMarkdownConverter(rootDir)
 	book, err := epub.NewEpub(story.Title)
 
 	if err != nil {
-		return err
+		return []byte{}, err
 	}
 
 	book.SetAuthor(story.Author)
@@ -59,36 +31,32 @@ func ConvertToEPUB(rootDir string, story parser.Story) error {
 	cssPath, err := book.AddCSS(cssContent(), "")
 
 	if err != nil {
-		return err
+		return []byte{}, err
 	}
 
 	for _, chapter := range story.Chapters {
-		body := "<h1>" + chapter.Title + "</h1>"
+		body := title(chapter)
 
-		mdBody, err := markdownToHTML(md, chapter.Body)
+		var mdBody string
+		mdBody, err = markdownToHTML(md, chapter.Body)
 
 		if err != nil {
-			return err
+			return []byte{}, err
 		}
 
 		body += mdBody
-
-		if len(chapter.Choices) > 0 {
-			body += "<ul class=\"choices\">"
-
-			for _, choice := range chapter.Choices {
-				body += "<li><a href=\"" + choice.ChapterID + ".xhtml\">" + choice.Text + "</a></li>"
-			}
-
-			body += "</ul>"
-		}
+		body += choices(chapter, "", ".xhtml")
 
 		_, err = book.AddSection(body, chapter.Title, chapter.ID, cssPath)
 
 		if err != nil {
-			return err
+			return []byte{}, err
 		}
 	}
 
-	return book.Write("output.epub")
+	var buf bytes.Buffer
+
+	_, err = book.WriteTo(&buf)
+
+	return buf.Bytes(), err
 }

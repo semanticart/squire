@@ -1,0 +1,7 @@
+#story > * {
+  display: none;
+}
+
+#story .active {
+  display: block;
+}
