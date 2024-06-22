@@ -22,7 +22,9 @@ func convert(story parser.Story, filename, format, outputFileName string) {
 	case "epub":
 		bytes, err = converter.ConvertToEPUB(rootDir, story)
 	case "html":
-		bytes, err = converter.ConvertToHTML(rootDir, story)
+		bytes, err = converter.ConvertToHTML(rootDir, story, false)
+	case "inline-html":
+		bytes, err = converter.ConvertToHTML(rootDir, story, true)
 	}
 
 	if err != nil {
@@ -47,7 +49,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	format := flag.StringP("format", "f", "", "output format (html or epub)")
+	format := flag.StringP("format", "f", "", "output format (inline-html, html, or epub)")
 	outputFileName := flag.StringP("output", "o", "", "output filename")
 	flag.Parse()
 

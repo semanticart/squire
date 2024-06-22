@@ -12,9 +12,13 @@ var htmlCSS []byte
 //go:embed assets/default-html-interactivity.js
 var htmlJS []byte
 
-func ConvertToHTML(rootDir string, story parser.Story) ([]byte, error) {
+func ConvertToHTML(rootDir string, story parser.Story, inline bool) ([]byte, error) {
 	md := newMarkdownConverter(rootDir)
-	html := "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"utf-8\">\n<title>" + story.Title + "</title>\n</head>\n<body>\n"
+	html := ""
+
+	if !inline {
+		html = "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"utf-8\">\n<title>" + story.Title + "</title>\n</head>\n<body>\n"
+	}
 
 	html += "<div id=\"story\">\n"
 	html += "<style>\n" + string(htmlCSS) + "\n</style>\n"
@@ -38,7 +42,9 @@ func ConvertToHTML(rootDir string, story parser.Story) ([]byte, error) {
 		story.Chapters[0].ID + "\";\n" + string(htmlJS) + "</script>\n"
 	html += "</div>\n"
 
-	html += "</body>\n</html>"
+	if !inline {
+		html += "</body>\n</html>"
+	}
 
 	return []byte(html), nil
 }
