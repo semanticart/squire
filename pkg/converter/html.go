@@ -1,9 +1,10 @@
 package converter
 
 import (
-	"github.com/semanticart/squire/pkg/parser"
-
 	_ "embed"
+	"fmt"
+
+	"github.com/semanticart/squire/pkg/parser"
 )
 
 //go:embed assets/default-html-styles.css
@@ -17,7 +18,7 @@ func ConvertToHTML(rootDir string, story parser.Story, inline bool) ([]byte, err
 	html := ""
 
 	if !inline {
-		html = "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"utf-8\">\n<title>" + story.Title + "</title>\n</head>\n<body>\n"
+		html = fmt.Sprintf("<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"utf-8\">\n<title>%s</title>\n</head>\n<body>\n", story.Title)
 	}
 
 	html += "<div id=\"story\">\n"
@@ -38,8 +39,8 @@ func ConvertToHTML(rootDir string, story parser.Story, inline bool) ([]byte, err
 		html += chapterHTML
 	}
 
-	html += "<script>\nwindow.initialChapterID = \"" +
-		story.Chapters[0].ID + "\";\n" + string(htmlJS) + "</script>\n"
+	html += fmt.Sprintf("<script>\nwindow.initialChapterID = \"%s\";\n%s</script>\n", story.Chapters[0].ID, string(htmlJS))
+
 	html += "</div>\n"
 
 	if !inline {

@@ -2,6 +2,7 @@ package converter
 
 import (
 	"bytes"
+	"fmt"
 
 	img64 "github.com/tenkoh/goldmark-img64"
 	"github.com/yuin/goldmark"
@@ -36,7 +37,7 @@ func markdownToHTML(md goldmark.Markdown, markdown string) (string, error) {
 }
 
 func title(chapter parser.Chapter) string {
-	return "<h1 id=\"" + chapter.ID + "\">" + chapter.Title + "</h1>"
+	return fmt.Sprintf("<h1 id=\"%s\">%s</h1>", chapter.ID, chapter.Title)
 }
 
 func choices(chapter parser.Chapter, prefix string, suffix string) string {
@@ -45,7 +46,7 @@ func choices(chapter parser.Chapter, prefix string, suffix string) string {
 		choiceHTML += "<ul class=\"choices\">"
 
 		for _, choice := range chapter.Choices {
-			choiceHTML += "<li><a href=\"" + prefix + choice.ChapterID + suffix + "\">" + choice.Text + "</a></li>"
+			choiceHTML += fmt.Sprintf("<li><a href=\"%s%s%s\">%s</a></li>", prefix, choice.ChapterID, suffix, choice.Text)
 		}
 
 		choiceHTML += "</ul>"
