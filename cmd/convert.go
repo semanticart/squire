@@ -60,9 +60,9 @@ var convertCmd = &cobra.Command{
 	Use:   "convert",
 	Short: "Convert a squire story to publishable format",
 	Long: `Convert a squire story to publishable format. Supported formats include:
-	- epub: A format that can be uploaded to the Kindle store
-	- html: A format that can be hosted on a website
-	- inline-html: A format that can be embedded in a website`,
+  - epub: A format that can be uploaded to the Kindle store
+  - html: A format that can be hosted on a website
+  - inline-html: A format that can be embedded in a website`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		fileName := args[0]
