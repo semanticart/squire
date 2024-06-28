@@ -9,6 +9,12 @@ import (
 	"github.com/semanticart/squire/pkg/parser"
 )
 
+func showValidationErrors(err error, fileName string) {
+	for _, e := range err.(parser.CombinedStoryError).Errors {
+		fmt.Printf("%s:%s\n", fileName, e)
+	}
+}
+
 // validateCmd represents the validate command
 var validateCmd = &cobra.Command{
 	Use:   "validate [filename.md]",
@@ -26,10 +32,7 @@ var validateCmd = &cobra.Command{
 
 		_, err = parser.Parse(string(content))
 		if err != nil {
-			for _, e := range err.(parser.CombinedStoryError).Errors {
-				fmt.Printf("%s:%s\n", fileName, e)
-			}
-
+			showValidationErrors(err, fileName)
 			os.Exit(1)
 		}
 
