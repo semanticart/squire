@@ -1,3 +1,4 @@
 bin/
-*.epub
-*.html
+# These are files often generated in manual testing
+/*.epub
+/*.html
